@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="img/logo2.png">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Client (ต้องมาก่อน script ของเรา) -->
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ===== CSS เดิม (โทนทอง/น้ำตาล) ===== */
@@ -667,7 +667,7 @@
     </div>
 
     <script>
-        // ====================== ประกาศ Supabase เพียงครั้งเดียว ======================
+        // 🔧 กำหนดค่า Supabase (ประกาศเพียงครั้งเดียว)
         const SUPABASE_URL = 'https://rbyvxhtntwktcdxligvi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PYcF7YtKZKk_luUr0Ifjvg_dpwRKWlT';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -679,8 +679,8 @@
             if (!timeStr) return null;
             const [hours, minutes] = timeStr.split(':').map(Number);
             const now = new Date();
-            now.setHours(hours, minutes, 0, 0);  // set ตาม local time
-            return now.toISOString();             // เก็บเป็น UTC ISO string
+            now.setHours(hours, minutes, 0, 0);
+            return now.toISOString();
         }
 
         // ----------------------------------------------------
@@ -710,7 +710,6 @@
             entryTime.addEventListener('change', calculateDuration);
             exitTime.addEventListener('change', calculateDuration);
 
-            // ----- จัดการ Rating (active class) -----
             const ratingItems = document.querySelectorAll('.rating-item');
             const ratingHidden = document.getElementById('satisfaction-rating');
 
@@ -722,7 +721,6 @@
                 });
             });
 
-            // ----- ส่งฟอร์ม -----
             const surveyForm = document.getElementById('survey-form');
             surveyForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -732,7 +730,6 @@
                     return;
                 }
 
-                // เตรียมข้อมูลให้ตรงกับคอลัมน์ room_logs
                 const surveyData = {
                     room_name: document.getElementById('room-name').value,
                     check_in: combineDateAndTime(entryTime.value),
@@ -762,7 +759,6 @@
                 }
             });
 
-            // ปุ่มล้างฟอร์ม
             document.getElementById('reset-survey-btn').addEventListener('click', () => {
                 surveyForm.reset();
                 durationDisplay.textContent = 'กรุณากรอกเวลาเข้าและเวลาออก';
@@ -808,7 +804,6 @@
                 const rating = row.satisfaction ? parseInt(row.satisfaction) : 0;
                 for (let i = 1; i <= 5; i++) stars += i <= rating ? '★' : '☆';
 
-                // แสดง check_in/out เป็นเวลา HH:MM (ตัดวันที่)
                 const checkIn = row.check_in ? new Date(row.check_in).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
                 const checkOut = row.check_out ? new Date(row.check_out).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
                 const created = row.created_at ? new Date(row.created_at).toLocaleString('th-TH', {
@@ -878,7 +873,6 @@
             URL.revokeObjectURL(link.href);
         }
 
-        // CSV
         window.exportCSV = async function() {
             const { data, error } = await supabase.from('room_logs').select('*').order('created_at', { ascending: false });
             if (error) { alert('ไม่สามารถดึงข้อมูล: ' + error.message); return; }
@@ -902,7 +896,6 @@
             downloadFile(csvContent, 'room_logs_export.csv', 'text/csv');
         };
 
-        // SQL INSERT
         window.exportSQL = async function() {
             const { data, error } = await supabase.from('room_logs').select('*').order('created_at', { ascending: false });
             if (error) { alert('ไม่สามารถดึงข้อมูล: ' + error.message); return; }
@@ -919,7 +912,6 @@
             downloadFile(sql, 'room_logs_export.sql', 'application/sql');
         };
 
-        // CLI คำสั่ง
         window.exportCLI = async function() {
             const projectRef = 'rbyvxhtntwktcdxligvi';
             const cliCommand = `# ส่งออกตาราง room_logs ด้วย Supabase CLI
