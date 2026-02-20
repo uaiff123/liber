@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Admin · แบบสำรวจ & ข้อมูลห้อง</title>
+    <title>Admin · จัดการข้อมูลห้องอินเทอร์เน็ต 2</title>
     <link rel="icon" type="image/png" href="img/logo2.png">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== CSS เดิม – ปรับฟอร์มให้เล็กลงอย่างมาก ===== */
+        /* ===== CSS เดิม (โทนทอง/น้ำตาล) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -119,7 +119,7 @@
             border: 1px solid rgba(255,255,255,0.3);
         }
 
-        /* ===== ฟอร์มขนาดกะทัดรัดพิเศษ ===== */
+        /* ===== ฟอร์มขนาดกะทัดรัด ===== */
         .form-section {
             background: linear-gradient(145deg, #ffffff, #fffdf8);
             border: 1.5px solid rgba(192,146,57,0.2);
@@ -138,16 +138,11 @@
             font-size: 1.2rem;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 0.8rem;
-        }
-
         .form-group {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            margin-bottom: 0.5rem;
         }
 
         .form-group label {
@@ -221,13 +216,13 @@
             border-radius: 30px;
         }
 
+        /* Rating */
         .rating-container {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            margin-top: 0.3rem;
+            margin: 0.5rem 0;
         }
-
         .rating-item {
             flex: 1 1 85px;
             background: rgba(192,146,57,0.06);
@@ -241,14 +236,12 @@
             color: #5A4A2E;
             font-size: 0.8rem;
         }
-
         .rating-item.active {
             background: var(--gold);
             color: white;
             border-color: var(--gold);
             box-shadow: 0 3px 8px rgba(192,146,57,0.3);
         }
-
         .rating-text {
             font-size: 0.8rem;
         }
@@ -337,12 +330,14 @@
             background: rgba(192,146,57,0.08);
             color: #5A4A2E;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         td {
             padding: 0.9rem 0.75rem;
             border-bottom: 1px solid rgba(192,146,57,0.1);
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         tr:hover td {
@@ -480,16 +475,28 @@
         <div class="admin-header">
             <h1>
                 <i class="fas fa-cog" style="color: #C09239;"></i> 
-                แบบสำรวจ & ข้อมูลห้อง
+                จัดการข้อมูลห้องอินเทอร์เน็ต 2
             </h1>
             <span class="admin-badge"><i class="fas fa-shield-alt"></i> ผู้ดูแลระบบ</span>
         </div>
 
-        <!-- ========== ฟอร์มขนาดกะทัดรัดสุด ========== -->
+        <!-- ========== ฟอร์มบันทึกข้อมูล (ใช้ room_logs) ========== -->
         <div class="form-section">
-            <h2><i class="fas fa-clipboard-list"></i> แบบสำรวจการเข้าใช้ห้อง</h2>
+            <h2><i class="fas fa-clipboard-list"></i> เพิ่มข้อมูลการเข้าใช้ห้อง</h2>
             
-            <form id="checkin-survey-form">
+            <form id="survey-form">
+                <!-- ห้อง -->
+                <div class="form-group">
+                    <label for="room-name"><i class="fas fa-door-open"></i> ห้องที่เข้าใช้</label>
+                    <select id="room-name" required>
+                        <option value="">-- เลือกห้อง --</option>
+                        <option value="ห้องอินเทอร์เน็ต 2" selected>ห้องอินเทอร์เน็ต 2</option>
+                        <option value="ห้องอินเทอร์เน็ต 1">ห้องอินเทอร์เน็ต 1</option>
+                        <option value="ห้องประชุม A">ห้องประชุม A</option>
+                        <option value="ห้องสมุด">ห้องสมุด</option>
+                    </select>
+                </div>
+
                 <!-- เวลาเข้า-ออก -->
                 <div style="margin-bottom: 0.8rem;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.6rem;">
@@ -533,11 +540,11 @@
                             <label for="year"><i class="fas fa-layer-group"></i> ชั้นปี</label>
                             <select id="year" required>
                                 <option value="">เลือกชั้นปี</option>
-                                <option value="1">ปวช 1</option>
-                                <option value="2">ปวช 2</option>
-                                <option value="3">ปวช 3</option>
-                                <option value="4">ปวส 1</option>
-                                <option value="5">ปวส 2</option>
+                                <option value="ปวช 1">ปวช 1</option>
+                                <option value="ปวช 2">ปวช 2</option>
+                                <option value="ปวช 3">ปวช 3</option>
+                                <option value="ปวส 1">ปวส 1</option>
+                                <option value="ปวส 2">ปวส 2</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -558,18 +565,29 @@
                     </div>
                 </div>
 
-                <!-- ระดับความพึงพอใจ -->
+                <!-- ระดับความพึงพอใจ (ใช้ class active) -->
                 <div style="margin-bottom: 0.8rem;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
                         <i class="fas fa-star" style="color: var(--gold); font-size: 0.95rem;"></i>
                         <span style="font-weight: 600; color: var(--brown); font-size: 1rem;">ความพึงพอใจ</span>
                     </div>
+                    
                     <div class="rating-container" id="rating-container">
-                        <div class="rating-item" data-rating="1"><span class="rating-text">ไม่พอใจ (1)</span></div>
-                        <div class="rating-item" data-rating="2"><span class="rating-text">พอใช้ (2)</span></div>
-                        <div class="rating-item" data-rating="3"><span class="rating-text">พอใจ (3)</span></div>
-                        <div class="rating-item" data-rating="4"><span class="rating-text">พอใจมาก (4)</span></div>
-                        <div class="rating-item" data-rating="5"><span class="rating-text">พอใจที่สุด (5)</span></div>
+                        <div class="rating-item" data-rating="1">
+                            <div class="rating-text">ไม่พอใจ (1)</div>
+                        </div>
+                        <div class="rating-item" data-rating="2">
+                            <div class="rating-text">พอใช้ (2)</div>
+                        </div>
+                        <div class="rating-item" data-rating="3">
+                            <div class="rating-text">พอใจ (3)</div>
+                        </div>
+                        <div class="rating-item" data-rating="4">
+                            <div class="rating-text">พอใจมาก (4)</div>
+                        </div>
+                        <div class="rating-item" data-rating="5">
+                            <div class="rating-text">พอใจที่สุด (5)</div>
+                        </div>
                     </div>
                     <input type="hidden" id="satisfaction-rating" required>
                 </div>
@@ -596,10 +614,10 @@
             </form>
         </div>
 
-        <!-- ========== ตาราง room_logs + ปุ่ม Export ========== -->
+        <!-- ========== ตารางแสดงข้อมูลจาก room_logs ========== -->
         <div class="table-section">
             <div class="table-header">
-                <h3><i class="fas fa-list-ul"></i> รายการความคิดเห็น (room_logs)</h3>
+                <h3><i class="fas fa-list-ul"></i> รายการข้อมูลทั้งหมด (room_logs)</h3>
                 <div class="export-actions">
                     <button class="btn btn-secondary btn-sm" onclick="exportCSV()" title="ส่งออก CSV"><i class="fas fa-file-csv"></i> CSV</button>
                     <button class="btn btn-secondary btn-sm" onclick="exportSQL()" title="ส่งออก SQL INSERT"><i class="fas fa-database"></i> SQL</button>
@@ -607,7 +625,7 @@
                 </div>
                 <div class="filter-box">
                     <i class="fas fa-search" style="color: #C09239;"></i>
-                    <input type="text" id="filter-school" placeholder="กรองตาม School...">
+                    <input type="text" id="filter-room" placeholder="กรองตามชื่อห้อง...">
                 </div>
             </div>
             <div style="overflow-x: auto;">
@@ -615,16 +633,21 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>School</th>
                             <th>ห้อง</th>
+                            <th>เวลาเข้า</th>
+                            <th>เวลาออก</th>
+                            <th>ชื่อ-สกุล</th>
+                            <th>รหัสนักศึกษา</th>
+                            <th>ชั้นปี</th>
+                            <th>สาขา</th>
                             <th>คะแนน</th>
                             <th>ความคิดเห็น</th>
-                            <th>เวลา</th>
+                            <th>วันที่บันทึก</th>
                             <th>จัดการ</th>
                         </tr>
                     </thead>
                     <tbody id="table-body">
-                        <tr><td colspan="7" class="empty-message">กำลังโหลดข้อมูล...</td></tr>
+                        <tr><td colspan="12" class="empty-message">กำลังโหลดข้อมูล...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -644,13 +667,24 @@
     </div>
 
     <script>
-        // 🔧 กำหนดค่า Supabase (ใช้ Anon Key สำหรับฝั่ง client)
+        // 🔧 กำหนดค่า Supabase (ประกาศเพียงครั้งเดียว)
         const SUPABASE_URL = 'https://rbyvxhtntwktcdxligvi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PYcF7YtKZKk_luUr0Ifjvg_dpwRKWlT';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ----------------------------------------------------
-        // 1. ฟังก์ชันสำหรับแบบสำรวจ (checkin_logs)
+        // ฟังก์ชันแปลงเวลา "HH:MM" เป็น ISO timestamp ของวันนี้ (timezone local)
+        // ----------------------------------------------------
+        function combineDateAndTime(timeStr) {
+            if (!timeStr) return null;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const now = new Date();
+            now.setHours(hours, minutes, 0, 0);  // set ตาม local time
+            return now.toISOString();             // เก็บเป็น UTC ISO string
+        }
+
+        // ----------------------------------------------------
+        // 1. ฟังก์ชันสำหรับแบบสำรวจ (บันทึกลง room_logs)
         // ----------------------------------------------------
         function initSurveyForm() {
             const entryTime = document.getElementById('entry-time');
@@ -676,6 +710,7 @@
             entryTime.addEventListener('change', calculateDuration);
             exitTime.addEventListener('change', calculateDuration);
 
+            // ----- จัดการ Rating (active class) -----
             const ratingItems = document.querySelectorAll('.rating-item');
             const ratingHidden = document.getElementById('satisfaction-rating');
 
@@ -687,7 +722,8 @@
                 });
             });
 
-            const surveyForm = document.getElementById('checkin-survey-form');
+            // ----- ส่งฟอร์ม -----
+            const surveyForm = document.getElementById('survey-form');
             surveyForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
@@ -696,20 +732,22 @@
                     return;
                 }
 
+                // เตรียมข้อมูลให้ตรงกับคอลัมน์ room_logs
                 const surveyData = {
-                    entry_time: entryTime.value || null,
-                    exit_time: exitTime.value || null,
-                    fullname: document.getElementById('fullname').value.trim(),
+                    room_name: document.getElementById('room-name').value,
+                    check_in: combineDateAndTime(entryTime.value),
+                    check_out: combineDateAndTime(exitTime.value),
+                    full_name: document.getElementById('fullname').value.trim(),
                     student_id: document.getElementById('student-id').value.trim(),
-                    year: document.getElementById('year').value,
+                    year_level: document.getElementById('year').value,
                     major: document.getElementById('major').value,
-                    rating: parseInt(ratingHidden.value),
-                    suggestion: document.getElementById('suggestion').value.trim() || null,
+                    satisfaction: parseInt(ratingHidden.value),
+                    comment: document.getElementById('suggestion').value.trim() || null,
                     created_at: new Date()
                 };
 
                 const { error } = await supabase
-                    .from('checkin_logs')
+                    .from('room_logs')
                     .insert([surveyData]);
 
                 if (error) {
@@ -724,6 +762,7 @@
                 }
             });
 
+            // ปุ่มล้างฟอร์ม
             document.getElementById('reset-survey-btn').addEventListener('click', () => {
                 surveyForm.reset();
                 durationDisplay.textContent = 'กรุณากรอกเวลาเข้าและเวลาออก';
@@ -737,46 +776,54 @@
         // ----------------------------------------------------
         let deleteId = null;
 
-        async function loadRoomLogs(filterSchool = '') {
+        async function loadRoomLogs(filterRoom = '') {
             const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '<tr><td colspan="7" class="empty-message"><i class="fas fa-spinner fa-pulse"></i> กำลังโหลด...</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="12" class="empty-message"><i class="fas fa-spinner fa-pulse"></i> กำลังโหลด...</td></tr>';
 
             let query = supabase
                 .from('room_logs')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (filterSchool.trim() !== '') {
-                query = query.ilike('school', `%${filterSchool}%`);
+            if (filterRoom.trim() !== '') {
+                query = query.ilike('room_name', `%${filterRoom}%`);
             }
 
             const { data, error } = await query;
 
             if (error) {
                 console.error(error);
-                tableBody.innerHTML = `<tr><td colspan="7" class="empty-message"><i class="fas fa-exclamation-circle"></i> เกิดข้อผิดพลาด: ${error.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="12" class="empty-message"><i class="fas fa-exclamation-circle"></i> เกิดข้อผิดพลาด: ${error.message}</td></tr>`;
                 return;
             }
 
             if (!data || data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="empty-message"><i class="fas fa-inbox"></i> ไม่พบข้อมูล</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="12" class="empty-message"><i class="fas fa-inbox"></i> ไม่พบข้อมูล</td></tr>';
                 return;
             }
 
             let html = '';
             data.forEach(row => {
                 let stars = '';
-                const rating = row.rating ? parseInt(row.rating) : 0;
+                const rating = row.satisfaction ? parseInt(row.satisfaction) : 0;
                 for (let i = 1; i <= 5; i++) stars += i <= rating ? '★' : '☆';
 
+                // แสดง check_in/out เป็นเวลา HH:MM (ตัดวันที่)
+                const checkIn = row.check_in ? new Date(row.check_in).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+                const checkOut = row.check_out ? new Date(row.check_out).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
                 const created = row.created_at ? new Date(row.created_at).toLocaleString('th-TH', {
                     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
                 }) : '-';
 
                 html += `<tr>
                     <td><span class="status-badge">${row.id}</span></td>
-                    <td><strong>${escapeHtml(row.school || '')}</strong></td>
-                    <td>${escapeHtml(row.room || '')}</td>
+                    <td>${escapeHtml(row.room_name || '')}</td>
+                    <td>${escapeHtml(checkIn)}</td>
+                    <td>${escapeHtml(checkOut)}</td>
+                    <td>${escapeHtml(row.full_name || '')}</td>
+                    <td>${escapeHtml(row.student_id || '')}</td>
+                    <td>${escapeHtml(row.year_level || '')}</td>
+                    <td>${escapeHtml(row.major || '')}</td>
                     <td><span class="rating-stars">${stars}</span></td>
                     <td>${escapeHtml(row.comment || '')}</td>
                     <td style="font-size: 0.85rem;">${created}</td>
@@ -812,7 +859,7 @@
                 alert('ลบไม่สำเร็จ: ' + error.message);
             } else {
                 closeDeleteModal();
-                loadRoomLogs(document.getElementById('filter-school').value.trim());
+                loadRoomLogs(document.getElementById('filter-room').value.trim());
             }
         }
 
@@ -837,12 +884,17 @@
             if (error) { alert('ไม่สามารถดึงข้อมูล: ' + error.message); return; }
             if (!data.length) { alert('ไม่มีข้อมูลให้ส่งออก'); return; }
             
-            const headers = ['id','school','room','rating','comment','created_at'];
+            const headers = ['id','room_name','check_in','check_out','full_name','student_id','year_level','major','satisfaction','comment','created_at'];
             const rows = data.map(row => [
                 row.id,
-                row.school || '',
-                row.room || '',
-                row.rating || '',
+                row.room_name || '',
+                row.check_in || '',
+                row.check_out || '',
+                row.full_name || '',
+                row.student_id || '',
+                row.year_level || '',
+                row.major || '',
+                row.satisfaction || '',
                 row.comment ? `"${row.comment.replace(/"/g, '""')}"` : '',
                 row.created_at || ''
             ]);
@@ -857,17 +909,17 @@
             if (!data.length) { alert('ไม่มีข้อมูลให้ส่งออก'); return; }
             
             let sql = `-- SQL INSERT สำหรับตาราง room_logs\n-- สร้างเมื่อ ${new Date().toLocaleString('th-TH')}\n\n`;
-            sql += `INSERT INTO room_logs (id, school, room, rating, comment, created_at) VALUES\n`;
+            sql += `INSERT INTO room_logs (id, room_name, check_in, check_out, full_name, student_id, year_level, major, satisfaction, comment, created_at) VALUES\n`;
             const values = data.map(row => {
                 const comment = row.comment ? `'${row.comment.replace(/'/g, "''")}'` : 'NULL';
                 const created = row.created_at ? `'${row.created_at}'` : 'NULL';
-                return `(${row.id}, '${row.school || ''}', '${row.room || ''}', ${row.rating || 'NULL'}, ${comment}, ${created})`;
+                return `(${row.id}, '${row.room_name || ''}', '${row.check_in || ''}', '${row.check_out || ''}', '${row.full_name || ''}', '${row.student_id || ''}', '${row.year_level || ''}', '${row.major || ''}', ${row.satisfaction || 'NULL'}, ${comment}, ${created})`;
             });
             sql += values.join(',\n') + ';';
             downloadFile(sql, 'room_logs_export.sql', 'application/sql');
         };
 
-        // CLI คำสั่ง (ตาม Documentation)
+        // CLI คำสั่ง
         window.exportCLI = async function() {
             const projectRef = 'rbyvxhtntwktcdxligvi';
             const cliCommand = `# ส่งออกตาราง room_logs ด้วย Supabase CLI
@@ -895,7 +947,7 @@ supabase db dump -t room_logs > room_logs_backup.sql
             supabase
                 .channel('room_logs_changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'room_logs' }, () => {
-                    loadRoomLogs(document.getElementById('filter-school').value.trim());
+                    loadRoomLogs(document.getElementById('filter-room').value.trim());
                 })
                 .subscribe();
         }
@@ -936,7 +988,7 @@ supabase db dump -t room_logs > room_logs_backup.sql
                 if (e.target.classList.contains('modal')) closeDeleteModal();
             });
 
-            document.getElementById('filter-school').addEventListener('input', (e) => {
+            document.getElementById('filter-room').addEventListener('input', (e) => {
                 loadRoomLogs(e.target.value.trim());
             });
 
