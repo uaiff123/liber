@@ -124,7 +124,7 @@
             background: linear-gradient(145deg, #ffffff, #fffdf8);
             border: 1.5px solid rgba(192,146,57,0.2);
             border-radius: 28px;
-            padding: 1rem 1.2rem;  /* ลดจาก 1.5rem */
+            padding: 1rem 1.2rem;
             box-shadow: 0 6px 14px rgba(153,115,40,0.05);
             margin-bottom: 1.5rem;
         }
@@ -135,7 +135,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.2rem; /* เล็กลง */
+            font-size: 1.2rem;
         }
 
         .form-grid {
@@ -147,7 +147,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem; /* ลดจาก 0.4rem */
+            gap: 0.25rem;
         }
 
         .form-group label {
@@ -156,13 +156,13 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            font-size: 0.85rem; /* ลดลง */
+            font-size: 0.85rem;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
-            padding: 0.5rem 0.8rem; /* ลดลง */
+            padding: 0.5rem 0.8rem;
             border: 1.5px solid rgba(192,146,57,0.2);
             border-radius: 14px;
             font-size: 0.9rem;
@@ -183,7 +183,7 @@
             background: linear-gradient(145deg, var(--gold), var(--gold-light));
             border: none;
             border-radius: 40px;
-            padding: 0.6rem 1.2rem; /* เล็กลง */
+            padding: 0.6rem 1.2rem;
             color: white;
             font-weight: 600;
             cursor: pointer;
@@ -644,7 +644,7 @@
     </div>
 
     <script>
-        // 🔧 กำหนดค่า Supabase
+        // 🔧 กำหนดค่า Supabase (ใช้ Anon Key สำหรับฝั่ง client)
         const SUPABASE_URL = 'https://rbyvxhtntwktcdxligvi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PYcF7YtKZKk_luUr0Ifjvg_dpwRKWlT';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
