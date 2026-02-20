@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>เลือกสถานะ · ตึกวิทยบริการ</title>
+    <link rel="icon" type="image/png" href="img/logo2.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f3f1e1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* ฟองอากาศพื้นหลัง */
+        .bg-bubble {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(192, 146, 57, 0.06);
+            pointer-events: none;
+            z-index: -1;
+            animation: bubbleFloat 20s linear infinite;
+        }
+
+        @keyframes bubbleFloat {
+            0% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+            10% { opacity: 0.2; }
+            90% { opacity: 0.2; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+
+        /* การ์ดหลัก */
+        .selection-card {
+            width: min(92%, 800px);
+            background: linear-gradient(145deg, #ffffff, #fff9ed);
+            border-radius: 48px 48px 48px 48px;
+            padding: 2.8rem 2rem;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(153, 115, 40, 0.2);
+            border: 2px solid rgba(192, 146, 57, 0.5);
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .selection-card h1 {
+            font-size: clamp(2rem, 8vw, 3.2rem);
+            color: #9C7A3A;
+            margin-bottom: 0.75rem;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .selection-card h1 i {
+            font-size: 2.4rem;
+            color: #C09239;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #5A4A2E;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            font-weight: 500;
+            border-bottom: 2px dashed rgba(192,146,57,0.3);
+            padding-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .role-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin: 2.5rem 0 1.5rem;
+        }
+
+        .role-card {
+            flex: 1 1 240px;
+            max-width: 280px;
+            background: white;
+            border-radius: 36px;
+            padding: 2rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+            border: 2px solid rgba(192,146,57,0.2);
+            box-shadow: 0 12px 18px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .role-card:hover {
+            transform: translateY(-12px);
+            border-color: #C09239;
+            box-shadow: 0 22px 30px rgba(192,146,57,0.15);
+        }
+
+        .role-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #C09239, #D4B15F);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: white;
+            font-size: 3.5rem;
+            box-shadow: 0 8px 0 #7A5C2A, 0 12px 20px rgba(192,146,57,0.3);
+            transition: all 0.1s ease;
+        }
+
+        .role-card:active .role-icon {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #7A5C2A, 0 15px 25px rgba(192,146,57,0.3);
+        }
+
+        .role-card h2 {
+            font-size: 1.8rem;
+            color: #5A4A2E;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-card p {
+            color: #7A5C2A;
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-role {
+            background: rgba(192,146,57,0.1);
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            color: #9C7A3A;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(192,146,57,0.2);
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            color: #9C7A3A;
+            opacity: 0.7;
+            font-size: 0.95rem;
+        }
+
+        .footer-note i {
+            color: #C09239;
+        }
+
+        @media (max-width: 600px) {
+            .selection-card {
+                padding: 2rem 1.2rem;
+            }
+            .role-container {
+                gap: 1.2rem;
+            }
+            .role-card {
+                padding: 1.5rem 0.8rem;
+            }
+            .role-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2.8rem;
+            }
+        }
+
+                /* ขนาดจอภาพ ขนาด 360 */
+        @media (max-width: 360px) {
+            .intro-wrap h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* ขนาดจอภาพของมือถือหน้าจอความใหญ่ของข้อความ */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Intro section ที่ปรับปรุงแล้ว */
+        #intro {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            overflow: hidden;
+            will-change: opacity;
+        }
+
+        .intro-wrap {
+            position: relative;
+            width: min(85vw, 850px);
+            border-radius: 18px;
+            overflow: hidden;
+            border: 4px solid rgba(192, 146, 57, 0.9);
+            box-shadow: 0 0 25px rgba(192, 146, 57, 0.6);
+            animation: floatUpDown 1.3s ease-in-out infinite;
+            bottom: 23%;
+            
+            /* เพิ่ม 3 บรรทัดนี้ */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem; /* เพิ่มพื้นที่ว่างข้างในให้ดูสวยขึ้น */
+            background: white; /* ใส่พื้นหลังกันโปร่งแสง */
+        }
+
+        /* ตัวรูป */ 
+        .intro-wrap img {
+            max-width: 300px; /* รูปจะใหญ่ได้ไม่เกิน 600px */
+            width: 50%; /* แต่ถ้าจอเล็กกว่า 600px รูปจะกว้างเต็มจอพอดี */
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .intro-wrap h1 {
+            position: relative;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1.5rem; /* เพิ่มระยะห่างระหว่างตัวหนังสือกับรูป */
+        }
+
+        .intro-wrap h1::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            color: linear-gradient(110deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.95) 45%,
+                rgba(255,255,255,0.15) 60%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: translateX(-150%) skewX(-12deg);
+            mix-blend-mode: screen;
+            animation: sweep 0.5s ease-in-out 0.15s; /* วิ่งเร็วขึ้นมาก */
+        }
+
+        /* แสงวิ่งเร็วขึ้น */
+        .intro-wrap::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.95) 45%,
+                rgba(255,255,255,0.15) 60%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: translateX(-150%) skewX(-12deg);
+            mix-blend-mode: screen;
+            animation: sweep 0.5s ease-in-out 0.15s; /* วิ่งเร็วขึ้นมาก */
+        }
+
+        @keyframes sweep {
+            0%   { transform: translateX(-150%) skewX(-12deg); opacity: 0; }
+            20%  { opacity: 0.5; }
+            50%  { transform: translateX(10%) skewX(-12deg); opacity: 1; }
+            100% { transform: translateX(150%) skewX(-12deg); opacity: 0; }
+        }
+
+        @keyframes floatUpDown {
+            0%   { transform: translateY(-10px); }
+            50%   { transform: translateY(0px) ; }
+            100% { transform: translateY(-10px); }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="bubbles-container"></div>
+
+       <div id="intro">
+        <div class="intro-wrap">
+            <h1>ตึกวิทยบริการ</h1>
+            <img src="img/map.jpeg" alt="map on">
+        </div>
+    </div>
+
+    <div class="selection-card">
+        <h1>
+            <i class="fas fa-building"></i> ตึกวิทยบริการ
+        </h1>
+        <span class="subtitle">กรุณาเลือกสถานะของคุณ</span>
+
+        <div class="role-container">
+            <!-- บัตรนักศึกษา -->
+            <div class="role-card" onclick="selectRole('student')">
+                <div class="role-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h2>นักศึกษา</h2>
+                <p>เข้าใช้บริการ ให้คะแนน<br>แสดงความคิดเห็น</p>
+                <span class="badge-role">ผู้ใช้งานทั่วไป</span>
+            </div>
+            <!-- บัตรผู้ดูแลห้องสมุด -->
+            <div class="role-card" onclick="selectRole('librarian')">
+                <div class="role-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h2>ผู้ดูแลห้องสมุด</h2>
+                <p>จัดการข้อมูล ดูสถิติ<br>ตรวจสอบความคิดเห็น</p>
+                <span class="badge-role">เจ้าหน้าที่</span>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <i class="fas fa-arrow-right"></i> เลือกสถานะเพื่อดำเนินการต่อ
+        </div>
+    </div>
+
+    <script>
+        // ฟังก์ชันเมื่อเลือกสถานะ
+        function selectRole(role) {
+            // สามารถปรับเปลี่ยนได้ตามต้องการ เช่น เก็บค่าลง localStorage แล้วไป home
+            if (role === 'student') {
+                // ตัวอย่าง: ไปหน้า home สำหรับนักศึกษา
+                window.location.href = 'home.html?role=student';
+            } else if (role === 'librarian') {
+                // ตัวอย่าง: ไปหน้า dashboard สำหรับผู้ดูแล
+                window.location.href = 'admin.html?role=librarian'; 
+                // หรือจะแยกไปคนละหน้าเลยก็ได้ เช่น admin.html
+                // window.location.href = 'admin.html';
+            }
+        }
+
+        // สร้างฟองอากาศพื้นหลัง
+        function createBubbles() {
+            const container = document.getElementById('bubbles-container');
+            if (!container) return;
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bg-bubble';
+                    const size = Math.random() * 60 + 30;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                    bubble.style.left = Math.random() * 100 + '%';
+                    bubble.style.animationDuration = (Math.random() * 12 + 18) + 's';
+                    bubble.style.animationDelay = (Math.random() * 6) + 's';
+                    container.appendChild(bubble);
+                    setTimeout(() => bubble.remove(), 22000);
+                }, i * 600);
+            }
+        }
+        createBubbles();
+        setInterval(createBubbles, 9000);
+
+            // Intro fade out
+            setTimeout(() => {
+                const intro = document.getElementById('intro');
+                if (intro) {
+                    intro.classList.add('fade-out');
+                    intro.addEventListener('animationend', () => {
+                        intro.style.display = 'none';
+                    }, { once: true });
+                }
+            }, 1500);
+    </script>
+</body>
+</html>

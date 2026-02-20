@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องสมุด</title>
+    <link rel="icon" type="image" href="img/logo2.png">
+    <!-- เพิ่ม Font Awesome สำหรับไอคอน -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- เพิ่ม Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* --- CSS STYLES --- */
+
+        /* General Body and Scrollbar - โทนสีส้มเดี่ยว */
+        body {
+            background: linear-gradient(135deg, #FFEDD5 0%, #FED7AA 100%);
+            min-height: 100vh;
+            color: #333333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #f5f5f5; }
+        ::-webkit-scrollbar-thumb { background-color: #F97316; border-radius: 6px; border: 3px solid #f5f5f5; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #EA580C; }
+        * { scrollbar-width: thin; scrollbar-color: #F97316 #f5f5f5; }
+
+        /* Enhanced Gradient Card (Main Container) */
+        .gradient-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(249, 115, 22, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(249, 115, 22, 0.15), 0 5px 15px rgba(249, 115, 22, 0.1);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            max-width: 700px;
+            margin: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .gradient-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(249, 115, 22, 0.2), 0 8px 20px rgba(249, 115, 22, 0.15);
+        }
+
+        /* Enhanced Button - สีส้ม */
+        .action-btn {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 0.85rem 1.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(249, 115, 22, 0.25);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(249, 115, 22, 0.35);
+            background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+        }
+
+        /* ปุ่มออก (Exit Button) - สีส้มเข้ม */
+        .exit-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(234, 88, 12, 0.25);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        .exit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(234, 88, 12, 0.35);
+            background: linear-gradient(135deg, #C2410C 0%, #9A3412 100%);
+        }
+
+        /* Overlay สำหรับแจ้งเตือนข้อมูลไม่ครบ */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            backdrop-filter: blur(5px);
+        }
+
+        .overlay-content {
+            background: linear-gradient(135deg, #ffffff 0%, #FFEDD5 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeInUp 0.4s ease-out;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .overlay-exit-content {
+            background: linear-gradient(135deg, #ffffff 0%, #FFEDD5 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeInUp 0.4s ease-out;
+            border: 1px solid rgba(234, 88, 12, 0.3);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .overlay-icon {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .overlay-warning-icon {
+            font-size: 4rem;
+            color: #F97316;
+            margin-bottom: 1rem;
+        }
+
+        .overlay-title {
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .overlay-message {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        /* ปุ่มใน Overlay - สีส้ม */
+        .overlay-btn {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 0.85rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(249, 115, 22, 0.25);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            margin: 0 0.5rem;
+            min-width: 120px;
+        }
+
+        .overlay-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(249, 115, 22, 0.35);
+        }
+
+        /* ปุ่มยกเลิกใน Overlay - สีส้มอ่อน */
+        .overlay-btn-cancel {
+            background: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+            box-shadow: 0 6px 15px rgba(251, 146, 60, 0.25);
+        }
+
+        .overlay-btn-cancel:hover {
+            box-shadow: 0 12px 25px rgba(251, 146, 60, 0.35);
+        }
+
+        .overlay-btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #EA580C;
+            font-weight: 600;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 8px;
+            color: #333333;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #EA580C;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Header Styles - แก้ไขใหม่เพื่อรวมรูปภาพ */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .page-logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #F97316 0%, #C2410C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        /* รูปภาพห้องสมุด */
+        .room-image-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.2);
+            border: 3px solid rgba(249, 115, 22, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .room-image-container:hover {
+            transform: scale(1.02);
+        }
+
+        .room-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Form Section */
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.15);
+        }
+
+        .form-section-title {
+            color: #EA580C;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Time Inputs (For 2-column layout) */
+        .time-user-row, .year-major-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Duration Display */
+        #duration-display {
+            padding: 0.8rem;
+            background: rgba(249, 115, 22, 0.05);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid rgba(249, 115, 22, 0.1);
+        }
+
+        /* Satisfaction Rating */
+        .rating-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .rating-item {
+            text-align: center;
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            background: rgba(249, 115, 22, 0.05);
+            border-radius: 8px;
+            margin: 0 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(249, 115, 22, 0.1);
+        }
+
+        .rating-item:hover {
+            background: rgba(249, 115, 22, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(249, 115, 22, 0.1);
+        }
+
+        .rating-item.selected {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(234, 88, 12, 0.3) 100%);
+            box-shadow: 0 5px 15px rgba(249, 115, 22, 0.2);
+            transform: scale(1.05);
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        .rating-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .rating-text {
+            font-size: 0.85rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .gradient-card {
+                padding: 1.5rem;
+                margin: 1rem 0.5rem;
+            }
+            
+            .time-user-row, .year-major-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            
+            .time-user-row .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .rating-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .rating-item {
+                flex: 0 0 calc(50% - 0.5rem);
+                margin: 0.5rem 0.25rem;
+            }
+            
+            .exit-btn {
+                top: 10px;
+                left: 10px;
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .overlay-content, .overlay-exit-content {
+                padding: 1.5rem;
+                width: 85%;
+            }
+            
+            .overlay-icon {
+                font-size: 3rem;
+            }
+            
+            .overlay-title {
+                font-size: 1.5rem;
+            }
+            
+            .overlay-btn-container {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .overlay-btn {
+                margin: 0;
+                width: 100%;
+            }
+            
+            .page-logo {
+                font-size: 1.8rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .room-image-container {
+                max-width: 100%;
+            }
+            
+            .room-image {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ปุ่มออกที่มุมซ้ายบน -->
+    <button class="exit-btn" id="exit-button"  onclick="window.location.href='index.html';">
+        <i class="fas fa-sign-out-alt"></i> ออก
+    </button>
+
+    <!-- Overlay สำหรับแจ้งเตือนข้อมูลไม่ครบ -->
+    <div class="overlay" id="incomplete-overlay">
+        <div class="overlay-content">
+            <div class="overlay-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="overlay-title">ข้อมูลยังไม่ครบถ้วน</div>
+            <div class="overlay-message" id="incomplete-message">
+                กรุณากรอกข้อมูลในฟิลด์ที่จำเป็นให้ครบถ้วนก่อนส่งแบบสำรวจ
+            </div>
+            <button class="overlay-btn" id="close-overlay-btn">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Overlay สำหรับยืนยันการออก -->
+    <div class="overlay" id="exit-overlay">
+        <div class="overlay-exit-content">
+            <div class="overlay-icon">
+                <i class="fas fa-door-open"></i>
+            </div>
+            <div class="overlay-title">ยืนยันการออก</div>
+            <div class="overlay-message">
+                คุณต้องการออกจากแบบสำรวจนี้หรือไม่?<br>
+                <span style="color: #EA580C; font-weight: 600;">การเปลี่ยนแปลงที่ยังไม่ได้บันทึกจะสูญหาย</span>
+            </div>
+            <div class="overlay-btn-container">
+                <button class="overlay-btn overlay-btn-cancel" id="cancel-exit-btn">
+                    <i class="fas fa-times"></i> ยกเลิก
+                </button>
+                <button class="overlay-btn overlay-btn-exit" id="confirm-exit-btn">
+                    <i class="fas fa-sign-out-alt"></i> ออก
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="survey-container" class="gradient-card">
+        <div class="page-header">
+            <!-- ข้อความและโลโก้ -->
+            <div class="page-logo">
+                <i class="fas fa-book"></i> 
+                <span>ห้องสมุด</span>
+            </div>
+            
+            <div class="page-subtitle">บันทึกข้อมูลการเข้าใช้และความพึงพอใจ</div>
+        </div>
+        <hr style="border-color: rgba(249, 115, 22, 0.15); margin: 0 0 2rem 0;">
+
+        <form id="checkin-survey-form">
+            
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="fas fa-clock"></i> ข้อมูลเวลาเข้าใช้
+                </div>
+                
+                <div class="time-user-row">
+                    <div class="form-group">
+                        <label class="form-label" for="entry-time">เวลาเข้า</label>
+                        <input type="time" id="entry-time" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="exit-time">เวลาออก</label>
+                        <input type="time" id="exit-time" class="form-input" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ระยะเวลาที่ใช้ในห้องสมุด</label>
+                    <div id="duration-display">
+                        กรุณากรอกเวลาเข้าและเวลาออก
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="fas fa-user-graduate"></i> ข้อมูลผู้ใช้งาน
+                </div>
+                
+                <div class="time-user-row">
+                    <div class="form-group">
+                        <label class="form-label" for="fullname">ชื่อ-นามสกุล(คำนำหน้า)</label>
+                        <input type="text" id="fullname" class="form-input" placeholder="กรอกคำนำหน้า-ชื่อ-นามสกุล" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="student-id">รหัสนักศึกษา</label>
+                        <input type="text" id="student-id" class="form-input" placeholder="กรอกรหัสนักศึกษา" required>
+                    </div>
+                </div>
+
+                <div class="year-major-row">
+                    <div class="form-group">
+                        <label class="form-label" for="year">ชั้นปี</label>
+                        <select id="year" class="form-select" required>
+                            <option value="">เลือกชั้นปี</option>
+                            <option value="1">ปวช 1</option>
+                            <option value="2">ปวช 2</option>
+                            <option value="3">ปวช 3</option>
+                            <option value="4">ปวส 1</option>
+                            <option value="5">ปวส 2</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="major">สาขาวิชา</label>
+                        <select id="major" class="form-select" required>
+                            <option value="">-- เลือกสาขาวิชา --</option>
+                            <option value="การบัญชี">การบัญชี</option>
+                            <option value="คอมพิวเตอร์ธุรกิจ">คอมพิวเตอร์ธุรกิจ</option>
+                            <option value="ไฟฟ้ากำลัง">ไฟฟ้ากำลัง</option>
+                            <option value="อิเล็กทรอนิกส์">อิเล็กทรอนิกส์</option>
+                            <option value="เครื่องมือกล">เครื่องมือกล</option>
+                            <option value="การโรงแรม">การโรงแรม</option>
+                            <option value="ธุรกิจดิจิทัล">ธุรกิจดิจิทัล</option>
+                            <option value="ธุรกิจค้าปลีก">ธุรกิจค้าปลีก</option>
+                            <option value="ช่างก่อสร้าง">ช่างก่อสร้าง</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ส่วนความพึงพอใจที่ทำงานได้แล้ว -->
+            <div class="form-section">
+                <div class="form-section-title">
+                    <i class="fas fa-star"></i> ระดับความพึงพอใจ
+                </div>
+                
+                <div class="rating-container">
+                    <div class="rating-item" data-rating="1">      
+                        <div class="rating-text">ไม่พอใจ (1)</div>
+                    </div>
+                    <div class="rating-item" data-rating="2">
+                        <div class="rating-text">พอใช้ (2)</div>
+                    </div>
+                    <div class="rating-item" data-rating="3">
+                        <div class="rating-text">พอใจ (3)</div>
+                    </div>
+                    <div class="rating-item" data-rating="4">
+                        <div class="rating-text">พอใจมาก (4)</div>
+                    </div>
+                    <div class="rating-item" data-rating="5">
+                        <div class="rating-text">พอใจที่สุด (5)</div>
+                    </div>
+                </div>
+                <input type="hidden" id="satisfaction-rating" required>
+            </div>
+
+            <div class="form-section" style="border-bottom: none; padding-bottom: 0;">
+                <div class="form-section-title">
+                    <i class="fas fa-comment-alt"></i> ข้อเสนอแนะ
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="suggestion">ข้อเสนอแนะเพื่อการปรับปรุง (ไม่บังคับ)</label>
+                    <textarea id="suggestion" class="form-textarea" placeholder="กรอกข้อเสนอแนะเกี่ยวกับการใช้ห้องสมุด"></textarea>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button type="submit" class="action-btn" style="width: 100%; max-width: 300px;">
+                    <i class="fas fa-check-circle"></i> ส่งแบบสำรวจ
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ======================
+            // SUPABASE CONFIGURATION
+            // ======================
+            // 🔧 ใช้ Supabase URL และ Key ของคุณที่นี่
+            const SUPABASE_URL = 'https://rbyvxhtntwktcdxligvi.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_PYcF7YtKZKk_luUr0Ifjvg_dpwRKWlT';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            // ======================
+            // DOM ELEMENTS
+            // ======================
+            const form = document.getElementById('checkin-survey-form');
+            const entryTimeInput = document.getElementById('entry-time');
+            const exitTimeInput = document.getElementById('exit-time');
+            const durationDisplay = document.getElementById('duration-display');
+            const ratingItems = document.querySelectorAll('.rating-item');
+            const satisfactionRatingInput = document.getElementById('satisfaction-rating');
+            
+            // องค์ประกอบใหม่
+            const exitButton = document.getElementById('exit-button');
+            const overlay = document.getElementById('incomplete-overlay');
+            const incompleteMessage = document.getElementById('incomplete-message');
+            const closeOverlayBtn = document.getElementById('close-overlay-btn');
+            
+            // องค์ประกอบสำหรับ overlay การออก
+            const exitOverlay = document.getElementById('exit-overlay');
+            const cancelExitBtn = document.getElementById('cancel-exit-btn');
+            const confirmExitBtn = document.getElementById('confirm-exit-btn');
+
+            // ======================
+            // EVENT LISTENERS
+            // ======================
+            // --- 1. ฟังก์ชันสำหรับปุ่มออก (แสดง overlay สวยๆ) ---
+            exitButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                exitOverlay.style.display = 'flex';
+            });
+
+            // --- 2. การจัดการ overlay การออก ---
+            cancelExitBtn.addEventListener('click', () => {
+                exitOverlay.style.display = 'none';
+            });
+
+            confirmExitBtn.addEventListener('click', () => {
+                // ปิด overlay
+                exitOverlay.style.display = 'none';
+                
+                // รีเซ็ตฟอร์ม
+                form.reset();
+                ratingItems.forEach(r => r.classList.remove('selected'));
+                satisfactionRatingInput.value = '';
+                calculateDuration();
+                
+                // แสดงข้อความยืนยันสวยๆ
+                showExitConfirmation();
+            });
+
+            // ปิด overlay เมื่อคลิกนอกพื้นที่ content
+            exitOverlay.addEventListener('click', (e) => {
+                if (e.target === exitOverlay) {
+                    exitOverlay.style.display = 'none';
+                }
+            });
+
+            // --- 3. ฟังก์ชันสำหรับปิด overlay ข้อมูลไม่ครบ ---
+            closeOverlayBtn.addEventListener('click', () => {
+                overlay.style.display = 'none';
+            });
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.display = 'none';
+                }
+            });
+
+            // ======================
+            // FUNCTIONS
+            // ======================
+            // --- 4. คำนวณระยะเวลา ---
+            function calculateDuration() {
+                const entryTime = entryTimeInput.value;
+                const exitTime = exitTimeInput.value;
+                
+                if (entryTime && exitTime) {
+                    const [entryHours, entryMinutes] = entryTime.split(':').map(Number);
+                    const [exitHours, exitMinutes] = exitTime.split(':').map(Number);
+                    
+                    let totalMinutes = (exitHours * 60 + exitMinutes) - (entryHours * 60 + entryMinutes);
+                    
+                    // กรณีที่เวลาออกน้อยกว่าเวลาเข้า (เช่น 23:00 ถึง 01:00)
+                    if (totalMinutes < 0) {
+                        totalMinutes += 24 * 60; // บวก 24 ชั่วโมง
+                    }
+                    
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    
+                    if (totalMinutes <= 0) {
+                        durationDisplay.textContent = 'เวลาออกต้องมากกว่าเวลาเข้า';
+                        durationDisplay.style.color = '#EF4444';
+                        return false; // ระบุว่าเวลาไม่ถูกต้อง
+                    } else {
+                        durationDisplay.textContent = `${hours} ชั่วโมง ${minutes} นาที`;
+                        durationDisplay.style.color = '#10B981';
+                        return true; // ระบุว่าเวลาใช้ได้
+                    }
+                } else {
+                    durationDisplay.textContent = 'กรุณากรอกเวลาเข้าและเวลาออก';
+                    durationDisplay.style.color = '#EA580C';
+                    return false; // ระบุว่าเวลาไม่ครบ
+                }
+            }
+
+            entryTimeInput.addEventListener('change', calculateDuration);
+            exitTimeInput.addEventListener('change', calculateDuration);
+
+            // --- 5. การเลือกคะแนนความพึงพอใจ ---
+            if (ratingItems.length > 0) {
+                ratingItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const ratingValue = this.getAttribute('data-rating');
+                        
+                        // ลบคลาส 'selected' ออกจากทุกอัน
+                        ratingItems.forEach(r => r.classList.remove('selected'));
+                        
+                        // เพิ่มคลาส 'selected' ให้กับรายการที่เลือก
+                        this.classList.add('selected');
+                        
+                        // ตั้งค่าค่าลงใน hidden input
+                        satisfactionRatingInput.value = ratingValue;
+                    });
+                });
+            }
+
+            // --- 6. ฟังก์ชันตรวจสอบข้อมูลที่กรอกไม่ครบ ---
+            function checkIncompleteFields() {
+                const requiredFields = [
+                    { id: 'fullname', name: 'ชื่อ-นามสกุล' },
+                    { id: 'student-id', name: 'รหัสนักศึกษา' },
+                    { id: 'year', name: 'ชั้นปี' },
+                    { id: 'major', name: 'สาขาวิชา' },
+                    { id: 'entry-time', name: 'เวลาเข้า' },
+                    { id: 'exit-time', name: 'เวลาออก' }
+                ];
+                
+                const incompleteFields = [];
+                
+                // ตรวจสอบฟิลด์ required
+                requiredFields.forEach(field => {
+                    const element = document.getElementById(field.id);
+                    if (!element.value.trim()) {
+                        incompleteFields.push(field.name);
+                    }
+                });
+                
+                // ตรวจสอบ rating
+                if (!satisfactionRatingInput.value) {
+                    incompleteFields.push('ระดับความพึงพอใจ');
+                }
+                
+                // ตรวจสอบเวลา (ต้องเข้า < ออก)
+                const isTimeValid = calculateDuration();
+                if (!isTimeValid && !incompleteFields.includes('เวลาเข้า') && !incompleteFields.includes('เวลาออก')) {
+                    incompleteFields.push('เวลาเข้าและเวลาออกไม่ถูกต้อง');
+                }
+                
+                return incompleteFields;
+            }
+
+            // --- 7. การส่งฟอร์ม (บันทึกลง Supabase) ---
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // ตรวจสอบข้อมูลที่กรอกไม่ครบ
+                const incompleteFields = checkIncompleteFields();
+                
+                if (incompleteFields.length > 0) {
+                    // สร้างข้อความแจ้งเตือน
+                    let message = 'กรุณากรอกข้อมูลในฟิลด์ต่อไปนี้ให้ครบถ้วน:<br><br>';
+                    incompleteFields.forEach((field, index) => {
+                        message += `${index + 1}. ${field}<br>`;
+                    });
+                    
+                    // แสดง overlay
+                    incompleteMessage.innerHTML = message;
+                    overlay.style.display = 'flex';
+                    return;
+                }
+                
+                // ตรวจสอบเวลาอีกครั้ง
+                if (!calculateDuration()) {
+                    incompleteMessage.innerHTML = 'เวลาเข้าและเวลาออกไม่ถูกต้อง<br>เวลาออกต้องมากกว่าเวลาเข้า';
+                    overlay.style.display = 'flex';
+                    return;
+                }
+
+                // ดึงข้อมูลจากฟอร์ม
+                const fullname = document.getElementById('fullname').value;
+                const studentId = document.getElementById('student-id').value;
+                const year = document.getElementById('year').value;
+                const major = document.getElementById('major').value;
+                const satisfaction = parseInt(satisfactionRatingInput.value);
+                const suggestion = document.getElementById('suggestion').value;
+                
+                // สร้างวันที่สำหรับ check_in และ check_out
+                const now = new Date();
+                const today = now.toISOString().split('T')[0]; // ได้วันที่แบบ YYYY-MM-DD
+                
+                // รวมวันที่กับเวลา
+                const checkInDateTime = `${today}T${entryTimeInput.value}:00.000Z`;
+                const checkOutDateTime = `${today}T${exitTimeInput.value}:00.000Z`;
+                
+                // ตรวจสอบว่า check_out มากกว่า check_in จริงๆ
+                if (new Date(checkOutDateTime) <= new Date(checkInDateTime)) {
+                    // ถ้าเวลาออกน้อยกว่าหรือเท่ากับเวลาเข้า
+                    const nextDay = new Date(now);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    const tomorrow = nextDay.toISOString().split('T')[0];
+                    const checkOutDateTimeFixed = `${tomorrow}T${exitTimeInput.value}:00.000Z`;
+                    
+                    // ใช้ check_outDateTimeFixed แทน
+                    var finalCheckOut = checkOutDateTimeFixed;
+                } else {
+                    var finalCheckOut = checkOutDateTime;
+                }
+
+                // เตรียมข้อมูลสำหรับบันทึกลงฐานข้อมูล
+                const formData = {
+                    room_name: 'ห้องสมุด',
+                    check_in: checkInDateTime,
+                    check_out: finalCheckOut,
+                    full_name: fullname,
+                    student_id: studentId,
+                    year_level: year,
+                    major: major,
+                    satisfaction: satisfaction,
+                    comment: suggestion || null, // ถ้าไม่มีข้อเสนอแนะให้เป็น null
+                    created_at: new Date().toISOString()
+                };
+
+                console.log('ข้อมูลที่จะบันทึก:', formData);
+                
+                // แสดงสถานะกำลังบันทึก
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังบันทึก...';
+                submitButton.disabled = true;
+                
+                try {
+                    // บันทึกลงฐานข้อมูล Supabase
+                    const { data, error } = await supabase
+                        .from('room_logs')
+                        .insert([formData])
+                        .select();
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    console.log('บันทึกข้อมูลสำเร็จ:', data);
+                    
+                    // แสดงผลการส่งสำเร็จ
+                    showSuccessMessage();
+                    
+                    // รีเซ็ตฟอร์ม
+                    form.reset();
+                    ratingItems.forEach(r => r.classList.remove('selected'));
+                    satisfactionRatingInput.value = '';
+                    
+                    // ตั้งค่าเวลาใหม่ให้เป็นเวลาปัจจุบัน
+                    const newNow = new Date();
+                    const currentTime = newNow.getHours().toString().padStart(2, '0') + ':' + newNow.getMinutes().toString().padStart(2, '0');
+                    const futureTime = new Date(newNow.getTime() + 60 * 60 * 1000); // +1 ชั่วโมง
+                    const futureTimeStr = futureTime.getHours().toString().padStart(2, '0') + ':' + futureTime.getMinutes().toString().padStart(2, '0');
+                    
+                    entryTimeInput.value = currentTime;
+                    exitTimeInput.value = futureTimeStr;
+                    calculateDuration();
+                    
+                } catch (error) {
+                    console.error('เกิดข้อผิดพลาดในการบันทึก:', error);
+                    
+                    // แสดงข้อผิดพลาด
+                    submitButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> เกิดข้อผิดพลาด';
+                    submitButton.style.background = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+                    
+                    setTimeout(() => {
+                        submitButton.innerHTML = originalButtonText;
+                        submitButton.style.background = 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)';
+                        submitButton.disabled = false;
+                        
+                        // แจ้งเตือนผู้ใช้
+                        incompleteMessage.innerHTML = `เกิดข้อผิดพลาดในการบันทึกข้อมูล:<br>${error.message}`;
+                        overlay.style.display = 'flex';
+                    }, 1500);
+                }
+            });
+
+            // --- 8. ฟังก์ชันแสดงผลสำเร็จ ---
+            function showSuccessMessage() {
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                
+                submitButton.innerHTML = '<i class="fas fa-check"></i> บันทึกสำเร็จ!';
+                submitButton.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+                submitButton.disabled = true;
+                
+                // แสดงการแจ้งเตือนแบบสวยๆ
+                showNotification('บันทึกข้อมูลสำเร็จ!', 'ข้อมูลถูกบันทึกลงฐานข้อมูลแล้ว', '#10B981');
+                
+                setTimeout(() => {
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.style.background = 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)';
+                    submitButton.disabled = false;
+                }, 1500);
+            }
+
+            // --- 9. ฟังก์ชันแสดงการยืนยันการออก ---
+            function showExitConfirmation() {
+                showNotification('ออกจากแบบสำรวจแล้ว', 'ฟอร์มถูกรีเซ็ตเรียบร้อย', '#EA580C');
+            }
+
+            // --- 10. ฟังก์ชันแสดง Notification สวยๆ ---
+            function showNotification(title, message, color) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: white;
+                    color: #333;
+                    padding: 1rem 1.5rem;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                    z-index: 4000;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    animation: slideIn 0.3s ease-out;
+                    border-left: 4px solid ${color};
+                    max-width: 350px;
+                `;
+                
+                notification.innerHTML = `
+                    <div style="background: ${color}; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-check-circle" style="color: white; font-size: 1.2rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">${title}</div>
+                        <div style="font-size: 0.9rem; color: #666;">${message}</div>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // อ่านััตโนมัติหลังจาก 3 วินาที
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            // เพิ่ม animation สำหรับ notification
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes slideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // ตั้งค่าเวลาเริ่มต้นและสิ้นสุดให้เป็นเวลาปัจจุบัน
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            const futureTime = new Date(now.getTime() + 60 * 60 * 1000); // +1 ชั่วโมง
+            const futureTimeStr = futureTime.getHours().toString().padStart(2, '0') + ':' + futureTime.getMinutes().toString().padStart(2, '0');
+            
+            entryTimeInput.value = currentTime;
+            exitTimeInput.value = futureTimeStr;
+            calculateDuration();
+            
+            // ======================
+            // TEST CONNECTION
+            // ======================
+            // ทดสอบการเชื่อมต่อฐานข้อมูลเมื่อโหลดหน้า
+            async function testConnection() {
+                try {
+                    const { data, error } = await supabase
+                        .from('room_logs')
+                        .select('id')
+                        .limit(1);
+                    
+                    if (error) {
+                        console.warn('⚠️ การเชื่อมต่อฐานข้อมูลมีปัญหา:', error.message);
+                        showNotification('เชื่อมต่อฐานข้อมูลล้มเหลว', 'กรุณาตรวจสอบการเชื่อมต่อ', '#EF4444');
+                        return false;
+                    }
+                    
+                    console.log('✅ เชื่อมต่อฐานข้อมูลสำเร็จ!');
+                    return true;
+                } catch (err) {
+                    console.error('❌ ข้อผิดพลาดในการเชื่อมต่อ:', err);
+                    showNotification('เชื่อมต่อฐานข้อมูลล้มเหลว', 'กรุณาตรวจสอบการเชื่อมต่อ', '#EF4444');
+                    return false;
+                }
+            }
+            
+            // ทดสอบการเชื่อมต่อ
+            testConnection();
+        });
+    </script>
+</body>
+</html>
