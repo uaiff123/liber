@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="img/logo2.png">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase JS Client -->
+    <!-- Supabase JS Client (ต้องมาก่อน script ของเรา) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ===== CSS เดิม (โทนทอง/น้ำตาล) ===== */
@@ -667,7 +667,7 @@
     </div>
 
     <script>
-        // 🔧 กำหนดค่า Supabase (ประกาศเพียงครั้งเดียว)
+        // ====================== ประกาศ Supabase เพียงครั้งเดียว ======================
         const SUPABASE_URL = 'https://rbyvxhtntwktcdxligvi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_PYcF7YtKZKk_luUr0Ifjvg_dpwRKWlT';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
